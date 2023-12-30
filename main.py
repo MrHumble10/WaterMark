@@ -2,7 +2,7 @@ import webbrowser
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import os
 
 desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
@@ -19,6 +19,11 @@ windows = Tk("WaterMark")
 windows.title("Water Mark App")
 windows.geometry("520x450")
 windows.config(bg="#392467")
+
+# img = Image.open(fr"{desktop}\WaterMark-App\\1.png")
+# draw = ImageDraw.Draw(img)
+# font = ImageFont.truetype('Halogen.ttf', size=50)
+# draw.text((1300, 640), 'hi', font)
 
 
 def logo_select():
@@ -90,15 +95,21 @@ def update():
     for i in images:
         print(f"{i}")
         img = Image.open(i)
+        draw = ImageDraw.Draw(img)
+        font = ImageFont.truetype('BOD_B.TTF', size=90)
+        draw.text((50, 250), text=text_entry.get(), font=font)
         try:
             img.thumbnail(IMAGE_SIZE)
         except ZeroDivisionError:
             img.thumbnail((int(image_x_size.get()), int(image_x_size.get())))
         y.thumbnail((200, 200))
+        # if not text_entry.get():
         try:
             img.paste(y, box=MARK_SIZE, mask=y)
         except ValueError:
             img.paste(y, box=MARK_SIZE)
+
+
 
         x += 1
         img.save(fr"{desktop}\WaterMark-App\\{x}.png")
@@ -132,6 +143,9 @@ y_label = Label(text="Y", font=("Elephant", 10, "normal"), bg="#392467", fg='#FF
 y_label.place(x=20, y=370)
 image_y_size = Entry(name="y", bg="#5D3587", fg='white', width=8, border=3)
 image_y_size.place(x=50, y=370)
+
+text_entry = Entry(name="text", bg="#5D3587", fg='white', width=48, border=3)
+text_entry.place(x=150, y=265)
 
 
 def radio_use():
