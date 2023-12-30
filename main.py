@@ -2,14 +2,18 @@ import webbrowser
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
-from PIL import Image, ImageChops, ImageEnhance
-import subprocess
-
+from PIL import Image
 import os
 
 desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
-print(desktop)
-
+try:
+    if not os.path.isfile(fr"{desktop}\WaterMark-App"):
+        os.mkdir(fr"{desktop}\WaterMark-App")
+except FileExistsError:
+    pass
+im = "img/logo_sm.png"
+IMAGE_SIZE = (0, 0)
+MARK_SIZE = (0, 0)
 saved = False
 windows = Tk("WaterMark")
 windows.title("Water Mark App")
@@ -19,6 +23,11 @@ windows.config(bg="#392467")
 
 def logo_select():
     global im, y
+    try:
+        if not os.path.isfile(fr"{desktop}\WaterMark-App"):
+            os.mkdir(fr"{desktop}\WaterMark-App")
+    except FileExistsError:
+        pass
     t = Image.open("".join(filedialog.askopenfilenames())).resize((352, 188))
     t.save(fr"{desktop}\WaterMark-App\\1.png")
     im = fr"{desktop}\WaterMark-App\\1.png"
@@ -29,37 +38,15 @@ def logo_select():
     canvas.place(x=80, y=100)
 
 
-
-im = "img/logoo_sm.png"
-# "img/logoo_sm.png"
-IMAGE_SIZE = (0, 0)
-MARK_SIZE = (0, 0)
-
-# logo = Image.open(im)
-# logo.show()
-# canvas = Canvas(width=300, height=100, highlightthickness=0)
-# image = PhotoImage(file="img/logoo.png")
-#
-# canvas.create_image(50, 50, image)
-# canvas.place(x=50, y=50)
-
 canvas = Canvas(width=800, height=900, highlightthickness=0, bg='#392467')
-
 image = PhotoImage(file=f"{im}")
 canvas.create_image(250, 70, image=image)
 canvas.place(x=80, y=100)
 
-#
-# look = "C:/Users/mrhum/PycharmProjects/watermark-pillow-portfolio/img/look.jpg"
-# x = Image.open(look)
-# x.thumbnail((300, 300))
 y = Image.open(im).resize((300, 100))
 
 
-# x.paste(y, (90, 80), mask=y)
-# x.show()
-
-def open():
+def update():
     try:
         if not os.path.isfile(fr"{desktop}\WaterMark-App"):
             os.mkdir(fr"{desktop}\WaterMark-App")
@@ -90,7 +77,7 @@ def open():
             image_y_size.delete(0, END)
             return
     except ValueError:
-        messagebox.showinfo(title="WaterMark", message='Please enter / select your preferred photo size!!!')
+        messagebox.showinfo(title="WaterMark", message='Please Enter or Select your preferred photo size!!!')
         return
     images = filedialog.askopenfilenames()
     files = [int(f.strip(".png")) for f in
@@ -103,7 +90,10 @@ def open():
     for i in images:
         print(f"{i}")
         img = Image.open(i)
-        img.thumbnail(IMAGE_SIZE)
+        try:
+            img.thumbnail(IMAGE_SIZE)
+        except ZeroDivisionError:
+            img.thumbnail((int(image_x_size.get()), int(image_x_size.get())))
         y.thumbnail((200, 200))
         try:
             img.paste(y, box=MARK_SIZE, mask=y)
@@ -119,26 +109,26 @@ def open():
             webbrowser.open(fr"{desktop}\WaterMark-App")
 
 
-upload_btn = Button(text='Upload Image', bg="#5D3587", fg="#FFD1E3",
-                    font=("Elephant", 13, "normal"), highlightthickness=5, command=open)
-upload_btn.place(x=175, y=350)
+upload_btn = Button(text='Update Image', bg="#5D3587", fg="#FFD1E3",
+                    font=("Elephant", 13, "normal"), highlightthickness=5, command=update)
+upload_btn.place(x=150, y=350)
 
 logo_btn = Button(text='Select Logo', bg="#5D3587", fg="#FFD1E3",
                   font=("Elephant", 13, "normal"), highlightthickness=5, command=logo_select)
-logo_btn.place(x=350, y=350)
+logo_btn.place(x=325, y=350)
 
-size_label = Label(text="Photo Size:", font=("Elephant", 20, "normal"), bg="#392467", fg='white')
+size_label = Label(text="Photo Size:", font=("Elephant", 20, "normal"), bg="#392467", fg='#FFD1E3')
 size_label.place(x=20, y=50)
 
-other_size_label = Label(text="Other Size:", font=("Elephant", 12, "normal"), bg="#392467", fg='white')
+other_size_label = Label(text="Other Size:", font=("Elephant", 12, "normal"), bg="#392467", fg='#FFD1E3')
 other_size_label.place(x=20, y=300)
 
-x_label = Label(text="X", font=("Elephant", 10, "normal"), bg="#392467", fg='white')
+x_label = Label(text="X", font=("Elephant", 10, "normal"), bg="#392467", fg='#FFD1E3')
 x_label.place(x=20, y=335)
 image_x_size = Entry(name="x", bg="#5D3587", fg='white', width=8, border=3)
 image_x_size.place(x=50, y=335)
 
-y_label = Label(text="Y", font=("Elephant", 10, "normal"), bg="#392467", fg='white')
+y_label = Label(text="Y", font=("Elephant", 10, "normal"), bg="#392467", fg='#FFD1E3')
 y_label.place(x=20, y=370)
 image_y_size = Entry(name="y", bg="#5D3587", fg='white', width=8, border=3)
 image_y_size.place(x=50, y=370)
@@ -164,7 +154,7 @@ def radio_use():
         return False
 
 
-axe_y = 75
+axe_y = 70
 v = IntVar()
 values = {"300 * 300": "1",
           "400 * 400": "2",
@@ -176,7 +166,7 @@ values = {"300 * 300": "1",
           "Other": "8",
           }
 
-# Loop is used to create multiple Radiobuttons
+# Loop is used to create multiple Radiobutton
 # rather than creating each button separately
 for (text, value) in values.items():
     axe_y += 25
